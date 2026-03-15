@@ -14,8 +14,9 @@ bgt $s1,$s0,sled #ako s2 e pogolem od s0 odnosno ako brojot na pati koi e izvrte
 	
 	addi $s1,$s1,1
 	
-	jal proverka #jal ripa kaj proverka pa koga vo proverka se povika jr $ra ripa na linijata odma posle ovaa
-	
+	move $a0,$s2 #teoretski potocno e preku a reg da se prenese vrednost vo procedura
+	jal proverka#jal ripa kaj proverka pa koga vo proverka se povika jr $ra ripa na linijata odma posle ovaa
+
 	beq $v0,1,sob #ako v0 e 1 odnosno brojot e prost ripa kaj sob
 	
 	j vrti #ova e za koga brojot ne e prost za da se vrati gore pred bgt
@@ -27,29 +28,31 @@ sob: #sobira i se vraka gore
 proverka:
 	li $v0,1 #true, se pretpostavuva deka brojot e prost
 	li $t0,2 #i
-	move $t2,$s2 #za da mozam da odzemam edenza dole kaj bgt da ne proveruvam dali brojot e delliv sam so sebe
-	subi $t2,$t2,1 #s2-1
+	addi $sp,$sp,-4 #vo stackot se pravi mesto za 1 zbor(int) 4 e zasho raboti so 4 bitni adresi, - zasho ednostavno taka raboti nz
+	sw $a0,0($sp) #se zacuvuva a0 vo stackot
+	subi $a0,$a0,1 #se odzima 1 za da ne se proveruva dellivost na brojot sam so sebe
 	
 loop: #proveruva dellivost na brojot od 2 se do brojot pred vneseniot
-	bgt $t0,$t2,krajPro
+	bgt $t0,$a0,endP
 	div $s2,$t0 #vo lo se stava s2/t0 a vo hi s2%t0
 	mfhi $t1 #rez od s2%i
-	addi $t0,$t0,1 #se dodava eden na brojacot
+	addi $t0,$t0,1
 	beq $t1,0,krajSl #ako se najde broj so koj vneseniot e delliv ripa kaj krajSl, odnosno ako s2%t0=0
 	j loop
 	
 krajSl:
 	li $v0,0 #false
-	jr $ra #se vraka gore
-krajPro:
-	jr $ra #ako ne e najden delitel na brojot samo se vraka gore
+endP:
+	lw $a0,0($sp) #se vraka originalnata vrednost vo a0
+	addi $sp,$sp,4 #se osloboduva memoriskoto mesto
+	jr $ra #se vraka na linija 19
 	
 sled:
 	li $v0,1 #se pecati sumata
 	move $a0,$s3
 	syscall
 	
-	li $v0,10 #kraj na programa ekvivalent na return 0;
+	li $v0,10 #kraj na progrma ekv na return 0;
 	syscall
 	
 	

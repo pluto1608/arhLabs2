@@ -14,6 +14,7 @@ bgt $s1,$s0,sled
 	
 	addi $s1,$s1,1
 	
+	move $a0,$s2
 	jal proverka
 	
 	beq $v0,1,sob
@@ -21,18 +22,18 @@ bgt $s1,$s0,sled
 	j vrti
 	
 sob:
-	
 	add $s3,$s2,$s3
 	j vrti
 	
 proverka:
 	li $v0,1 #true
 	li $t0,2 #i
-	move $t2,$s2
-	subi $t2,$t2,1 #s2-1
+	addi $sp,$sp,-4
+	sw $a0,0($sp)
+	subi $a0,$a0,1
 	
 loop:
-	bgt $t0,$t2,krajPro
+	bgt $t0,$a0,endP
 	div $s2,$t0
 	mfhi $t1 #rez od s2%i
 	addi $t0,$t0,1
@@ -41,8 +42,9 @@ loop:
 	
 krajSl:
 	li $v0,0 #false
-	jr $ra
-krajPro:
+endP:
+	lw $a0,0($sp)
+	addi $sp,$sp,4
 	jr $ra
 	
 sled:
